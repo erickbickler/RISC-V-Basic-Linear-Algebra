@@ -19,18 +19,18 @@ li a2, 0
 li a3, 10
 jal set_Element
 mv a0, s0
-li a1, 1
+li a1, 0
 li a2, 0
 jal get_Element
 jal print_Int
 jal Print_New_Line
 mv a0, s0
 jal print_Matrix
-li a0, 4
-li a1, 3
+li a0, 3
+li a1, 4
 jal create_Matrix
 mv s1, a0
-li a1, 3
+li a1, 0
 li a2, 2
 li a3, 40
 jal set_Element
@@ -46,6 +46,11 @@ mv s0, a0
 jal Print_New_Line
 jal Print_New_Line
 mv a0, s0
+jal print_Matrix
+jal Print_New_Line
+jal Print_New_Line
+mv a0, s0
+jal matrix_Transpos
 jal print_Matrix
 j End
 
@@ -74,27 +79,6 @@ sw a1, 4(a0)
 # this stores the number of colums
 lw a1, 4(sp)
 sw a1, 8(a0)
-
-# #intializes every element to zero
-# li t0, 0
-# li t1, 0
-# lw t2, 4(a0)
-# lw t3, 8(a0)
-# Loop_row_Create:        
-# 	Loop_columns_Cretate:
-# 		mv a1, t0
-#         mv a2, t1
-#         li a4, 0
-#         jal set_Element
-#         addi t1, t1, 1
-#         beq t1, t3, End_Loop_columns_Cretate
-#         j Loop_columns_Cretate
-#     End_Loop_columns_Cretate:
-#     li t1, 0    
-#     addi t0, t0, 1
-#     beq t0, t2, End_Loop_row_Create
-#    j Loop_row_Create
-# End_Loop_row_Create:
 lw ra, 8(sp) # set return address
 addi sp,sp,12
 ret
@@ -309,6 +293,47 @@ addi sp, sp, 16
 ret
 
 
+matrix_Transpos:
+#store matrix your taking the transpose of in a0
+addi sp, sp, -12
+sw a0, 0(sp)
+sw ra, 8(sp)
+li t1, 0
+lw t2, 4(a0)
+lw t3, 8(a0)
+mv a0, t3
+mv a1, t2
+jal create_Matrix # creates the transpose matrix
+sw a0, 4(sp)
+li t0, 0
+Loop_row_Transpos:        
+		Loop_columns_Transpos:
+    		lw a0, 0(sp)
+      		mv a1, t0
+        	mv a2, t1
+        	jal get_Element
+            mv a3, a0
+        	lw a0, 4(sp)
+        	mv a1, t1
+        	mv a2, t0
+        	jal set_Element
+        	addi t1, t1, 1
+        	beq t1, t3, End_Loop_columns_Transpos
+        	j Loop_columns_Transpos
+	End_Loop_columns_Transpos:
+    li t1, 0    
+    addi t0, t0, 1
+    beq t0, t2, End_Loop_row_Transpos
+	j Loop_row_Transpos
+End_Loop_row_Transpos:
+lw ra, 8(sp)
+lw a0, 4(sp)
+addi sp, sp, 12
+ret
+
+
+
+
 print_Matrix:
 addi sp, sp, -8
 sw a0, 0(sp)
@@ -348,7 +373,8 @@ jr ra
 
 Free:
 mv a1, a0
-li a0, 4
+li a0, 0x3CC
+li a6, 4
 ecall
 ret
 
