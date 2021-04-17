@@ -38,7 +38,7 @@ jal Print_New_Line
 jal Print_New_Line
 mv a1, s0
 mv a0, s1
-jal matrix_Addition
+jal matrix_Subtraction
 jal print_Matrix
 j End
 
@@ -197,7 +197,7 @@ lw ra, 12(sp)
 addi sp, sp, 16
 ret
 
-matrix_Substaction:
+matrix_Subtraction:
 #matrix one is stored in a0
 #matrix two is stored in a1
 # returns resulting matrix in a0
@@ -206,42 +206,44 @@ addi sp, sp, -16
 sw ra, 12(sp)
 sw a0, 0(sp)
 sw a1, 4(sp)
-# t5 is the row
+# t0 is the row
 # t1 is the colium
 # t2 is the size of row
 # t3 is tha size of columns
 # t4 is the element from first matrix
-li t5, 0
+
 li t1, 0
 lw t2, 4(a0)
 lw t3, 8(a0)
 mv a0, t2
 mv a1, t3
 jal create_Matrix
+li t0, 0
 sw a0, 8(sp)
-Loop_row_Sub:        
-	Loop_columns_Sub:
-    	lw a0, 0(sp)
-      	mv a1, t0
-        mv a2, t1
-        jal get_Element
-        mv t4, a0
-        lw a0, 4(sp)
-        mv a1, t0
-        mv a2, t1
-        jal get_Element
-        sub a3, a0, t4
-        lw a0, 8(sp)
-        mv a1, t0
-        mv a2, t1
-        jal set_Element
-        addi t1, t1, 1
-        beq t1, t3, End_Loop_columns_Sub
-        j Loop_columns_Sub
-    End_Loop_columns_Sub:
+	Loop_row_Sub:        
+		Loop_columns_Sub:
+    		lw a0, 0(sp)
+      		mv a1, t0
+        	mv a2, t1
+        	jal get_Element
+        	mv t4, a0
+        	lw a0, 4(sp)
+        	mv a1, t0
+        	mv a2, t1
+        	jal get_Element
+        	sub a3, t4, a0
+        	lw a0, 8(sp)
+        	mv a1, t0
+        	mv a2, t1
+        	jal set_Element
+        	addi t1, t1, 1
+        	beq t1, t3, End_Loop_columns_Sub
+        	j Loop_columns_Sub
+	End_Loop_columns_Sub:
     li t1, 0    
-    addi t5, t5, 1
-    beq t5, t2, End_Loop_row_Sub
+    addi t0, t0, 1
+    beq t0, t2, End_Loop_row_Sub
+
     j Loop_row_Sub
 End_Loop_row_Sub:
 lw a0, 8(sp)
