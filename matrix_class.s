@@ -1,7 +1,3 @@
-
-  
-
-  
 ############################## Matrix #################################
 # nxm  4*n*m location on heap
 # Input : size m into a0, size of n in a1.
@@ -18,12 +14,12 @@ li a0, 4
 li a1, 3
 jal create_Matrix
 mv s0, a0
-li a1, 3
-li a2, 2
+li a1, 1
+li a2, 0
 li a3, 10
 jal set_Element
 mv a0, s0
-li a1, 0
+li a1, 1
 li a2, 0
 jal get_Element
 jal print_Int
@@ -33,9 +29,15 @@ jal print_Matrix
 li a0, 4
 li a1, 3
 jal create_Matrix
+mv s1, a0
+li a1, 3
+li a2, 2
+li a3, 40
+jal set_Element
+jal Print_New_Line
+jal Print_New_Line
 mv a1, s0
-jal Print_New_Line
-jal Print_New_Line
+mv a0, s1
 jal matrix_Addition
 jal print_Matrix
 j End
@@ -50,11 +52,11 @@ sw a1, 4(sp)#number of colums a1
 sw ra, 8(sp)# stores return address
 
 # this allocates room on the heap
-addi a0, a0, 1
 mul a0, a0, a1
 li t0, 4 # to allocate 4 bytes to each element
 mul a0, a0, t0
 addi a0, a0, 4
+addi a0, a0, 12
 jal Malloc
 sw a0, 0(a0)
 
@@ -122,6 +124,7 @@ get_Element:
 #the row you want in a1
 #the columns want in a2
 #stores element, row, colum wanted in the stack
+#returns in a0
 addi sp, sp, -8
 sw a1, 0(sp)
 sw a2, 4(sp)
@@ -149,7 +152,7 @@ addi sp, sp, -16
 sw ra, 12(sp)
 sw a0, 0(sp)
 sw a1, 4(sp)
-# t5 is the row
+# t0 is the row
 # t1 is the colium
 # t2 is the size of row
 # t3 is tha size of columns
@@ -163,26 +166,26 @@ mv a1, t3
 jal create_Matrix
 li t0, 0
 sw a0, 8(sp)
-Loop_row_add:        
-	Loop_columns_Add:
-    	lw a0, 0(sp)
-      	mv a1, t0
-        mv a2, t1
-        jal get_Element
-        mv t4, a0
-        lw a0, 4(sp)
-        mv a1, t0
-        mv a2, t1
-        jal get_Element
-        add a4, a0, t4
-        lw a0, 8(sp)
-        mv a1, t0
-        mv a2, t1
-        jal set_Element
-        addi t1, t1, 1
-        beq t1, t3, End_Loop_columns_Add
-        j Loop_columns_Add
-    End_Loop_columns_Add:
+	Loop_row_add:        
+		Loop_columns_Add:
+    		lw a0, 0(sp)
+      		mv a1, t0
+        	mv a2, t1
+        	jal get_Element
+        	mv t4, a0
+        	lw a0, 4(sp)
+        	mv a1, t0
+        	mv a2, t1
+        	jal get_Element
+        	add a3, a0, t4
+        	lw a0, 8(sp)
+        	mv a1, t0
+        	mv a2, t1
+        	jal set_Element
+        	addi t1, t1, 1
+        	beq t1, t3, End_Loop_columns_Add
+        	j Loop_columns_Add
+	End_Loop_columns_Add:
     li t1, 0    
     addi t0, t0, 1
     beq t0, t2, End_Loop_row_add
@@ -227,7 +230,7 @@ Loop_row_Sub:
         mv a1, t0
         mv a2, t1
         jal get_Element
-        sub a4, a0, t4
+        sub a3, a0, t4
         lw a0, 8(sp)
         mv a1, t0
         mv a2, t1
