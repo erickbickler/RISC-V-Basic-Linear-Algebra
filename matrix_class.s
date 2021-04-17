@@ -30,6 +30,7 @@ j End
 
 #Note:  rows start at zero
 create_Matrix:
+addi sp, sp, -8
 sw a0, 0(sp)#number of rows in a0
 sw a1, 4(sp)#number of colums a1
 sw ra, 8(sp)# stores return address
@@ -48,7 +49,7 @@ sw a1, 4(a0)
 # this stores the number of colums
 lw a1, 4(sp)
 sw a1, 8(a0)
-
+addi sp,sp,8
 lw ra, 8(sp) # set return address
 ret 
 
@@ -59,6 +60,7 @@ set_Element:
 #element want to be added in a3
 
 #stores element, row, colum wanted in the stack
+addi sp,sp,-8
 sw a1, 0(sp)
 sw a2, 4(sp)
 sw a3, 8(sp)
@@ -74,6 +76,7 @@ mul a2, a2, a3
 add a1, a1, a2
 lw a2, 8(sp)
 sw a2, 0(a1)
+addi sp,sp,8
 ret
 
 get_Element:
@@ -81,6 +84,7 @@ get_Element:
 #the row you want in a1
 #the columns want in a2
 #stores element, row, colum wanted in the stack
+addi sp, sp, -4
 sw a1, 0(sp)
 sw a2, 4(sp)
 #gets right memory location
@@ -94,6 +98,7 @@ li a3, 4
 mul a2, a2, a3
 add a1, a1, a2
 lw a0, 0(a1)
+addi sp, sp, 4
 ret
 
 
