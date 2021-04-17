@@ -1,3 +1,5 @@
+
+  
 ############################## Matrix #################################
 # nxm  4*n*m location on heap
 # Input : size m into a0, size of n in a1.
@@ -8,8 +10,7 @@
 # There will be a Get_Element method that will get the element at the row and column specified. So, the matrix will be stored in a0,  the row you want will be stored in a1, and the column you want will be stored in a2. To get the element will do 4*(a1)*(number element in the row)+(a2)=(memory location) then return the value at the location on the data portion of the matrix in a0.
 
 
-.data
-.text
+
 Main:
 li a0, 4
 li a1, 3
@@ -30,7 +31,7 @@ j End
 
 #Note:  rows start at zero
 create_Matrix:
-addi sp, sp, -8
+addi sp, sp, -12
 sw a0, 0(sp)#number of rows in a0
 sw a1, 4(sp)#number of colums a1
 sw ra, 8(sp)# stores return address
@@ -49,8 +50,10 @@ sw a1, 4(a0)
 # this stores the number of colums
 lw a1, 4(sp)
 sw a1, 8(a0)
-addi sp,sp,8
+
+
 lw ra, 8(sp) # set return address
+addi sp,sp,12
 ret 
 
 set_Element:
@@ -60,7 +63,7 @@ set_Element:
 #element want to be added in a3
 
 #stores element, row, colum wanted in the stack
-addi sp,sp,-8
+addi sp,sp,-12
 sw a1, 0(sp)
 sw a2, 4(sp)
 sw a3, 8(sp)
@@ -76,7 +79,7 @@ mul a2, a2, a3
 add a1, a1, a2
 lw a2, 8(sp)
 sw a2, 0(a1)
-addi sp,sp,8
+addi sp,sp,12
 ret
 
 get_Element:
@@ -84,7 +87,7 @@ get_Element:
 #the row you want in a1
 #the columns want in a2
 #stores element, row, colum wanted in the stack
-addi sp, sp, -4
+addi sp, sp, -8
 sw a1, 0(sp)
 sw a2, 4(sp)
 #gets right memory location
@@ -98,7 +101,7 @@ li a3, 4
 mul a2, a2, a3
 add a1, a1, a2
 lw a0, 0(a1)
-addi sp, sp, 4
+addi sp, sp, 8
 ret
 
 
@@ -124,15 +127,4 @@ mv a1, a0
 li a0, 1
 ecall
 ret
-
-
-
-
-
-
-
-
-
-
-
 
