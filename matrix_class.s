@@ -14,7 +14,7 @@ li a0, 4
 li a1, 3
 jal create_Matrix
 mv s0, a0
-li a1, 1
+li a1, 0
 li a2, 0
 li a3, 10
 jal set_Element
@@ -39,6 +39,13 @@ jal Print_New_Line
 mv a1, s0
 mv a0, s1
 jal matrix_Subtraction
+jal print_Matrix
+li a2, 5
+jal matrix_Scalar_Multiplication
+mv s0, a0
+jal Print_New_Line
+jal Print_New_Line
+mv a0, s0
 jal print_Matrix
 j End
 
@@ -251,6 +258,56 @@ lw ra, 12(sp)
 addi sp, sp, 16
 ret
 
+matrix_Scalar_Multiplication:
+#matrix one is stored in a0
+#what you are scaling  by in a1
+# returns resulting matrix in a0
+# the matricies should be the same size
+addi sp, sp, -16
+sw ra, 12(sp)
+sw a0, 0(sp)
+sw a1, 4(sp)
+# t0 is the row
+# t1 is the colium
+# t2 is the size of row
+# t3 is tha size of columns
+# t4 is the element from the matrix
+
+li t1, 0
+lw t2, 4(a0)
+lw t3, 8(a0)
+mv a0, t2
+mv a1, t3
+jal create_Matrix
+li t0, 0
+sw a0, 8(sp)
+	Loop_row_Scalar_Multiplication:        
+		Loop_columns_Scalar_Multiplication:
+    		lw a0, 0(sp)
+      		mv a1, t0
+        	mv a2, t1
+        	jal get_Element
+			lw t4, 4(sp)
+        	mul a3, t4, a0
+        	lw a0, 8(sp)
+        	mv a1, t0
+        	mv a2, t1
+        	jal set_Element
+        	addi t1, t1, 1
+        	beq t1, t3, End_Loop_columns_Scalar_Multiplication
+        	j Loop_columns_Scalar_Multiplication
+	End_Loop_columns_Scalar_Multiplication:
+    li t1, 0    
+    addi t0, t0, 1
+    beq t0, t2, End_Loop_row_Scalar_Multiplication
+
+    j Loop_row_Scalar_Multiplication
+End_Loop_row_Scalar_Multiplication:
+lw a0, 8(sp)
+lw ra, 12(sp)
+addi sp, sp, 16
+ret
+
 
 print_Matrix:
 addi sp, sp, -8
@@ -278,6 +335,7 @@ Loop_row_Print:
     beq t0, t2, End_Loop_row_Print
    j Loop_row_Print
 End_Loop_row_Print:
+lw a0, 0(sp)
 lw ra, 4(sp)
 ret
 
