@@ -1,4 +1,15 @@
 
+  
+
+  
+############################## Matrix #################################
+# nxm  4*n*m location on heap
+# Input : size m into a0, size of n in a1.
+# Output: a0 stores a nxm matrix. 
+# Calls malloc allocate n*m*4 memory space.
+# Then it will store the data in 0(a0), store the number of rows 4(a0), store the number of columns into 8(a0). 
+# There will be an Add_Element to matrix method that will add to the location with the matrix being stored in a0, the row you want in a1, the columns want in a2, and the element want to be added in a3.  
+# There will be a Get_Element method that will get the element at the row and column specified. So, the matrix will be stored in a0,  the row you want will be stored in a1, and the column you want will be stored in a2. To get the element will do 4*(a1)*(number element in the row)+(a2)=(memory location) then return the value at the location on the data portion of the matrix in a0.
 
 .data
 .text
@@ -12,25 +23,24 @@ li a2, 2
 li a3, 10
 jal set_Element
 mv a0, s0
-li a1, 3
-li a2, 2
+li a1, 0
+li a2, 0
 jal get_Element
 jal print_Int
+jal Print_New_Line
+mv a0, s0
+jal print_Matrix
 li a0, 4
 li a1, 3
 jal create_Matrix
+mv a1, s0
+jal Print_New_Line
+jal Print_New_Line
 jal matrix_Addition
+jal print_Matrix
 j End
 
 
-############################## Matrix #################################
-# nxm  4*n*m location on heap
-# Input : size m into a0, size of n in a1.
-# Output: a0 stores a nxm matrix. 
-# Calls malloc allocate n*m*4 memory space.
-# Then it will store the data in 0(a0), store the number of rows 4(a0), store the number of columns into 8(a0). 
-# There will be an Add_Element to matrix method that will add to the location with the matrix being stored in a0, the row you want in a1, the columns want in a2, and the element want to be added in a3.  
-# There will be a Get_Element method that will get the element at the row and column specified. So, the matrix will be stored in a0,  the row you want will be stored in a1, and the column you want will be stored in a2. To get the element will do 4*(a1)*(number element in the row)+(a2)=(memory location) then return the value at the location on the data portion of the matrix in a0.
 
 #Note:  rows start at zero
 create_Matrix:
@@ -101,7 +111,7 @@ add a2, a2, a3
 li a3, 4
 mul a2, a2, a3
 add a1, a1, a2
-addi a1,a1, 4
+addi a1,a1, 12
 lw a2, 8(sp)
 sw a2, 0(a1)
 addi sp,sp,12
@@ -125,7 +135,7 @@ add a2, a2, a3
 li a3, 4
 mul a2, a2, a3
 add a1, a1, a2
-addi a1,a1,4
+addi a1,a1,12
 lw a0, 0(a1)
 addi sp, sp, 8
 ret
@@ -144,13 +154,14 @@ sw a1, 4(sp)
 # t2 is the size of row
 # t3 is tha size of columns
 # t4 is the element from first matrix
-li t5, 0
+
 li t1, 0
 lw t2, 4(a0)
 lw t3, 8(a0)
 mv a0, t2
 mv a1, t3
 jal create_Matrix
+li t0, 0
 sw a0, 8(sp)
 Loop_row_add:        
 	Loop_columns_Add:
@@ -173,8 +184,8 @@ Loop_row_add:
         j Loop_columns_Add
     End_Loop_columns_Add:
     li t1, 0    
-    addi t5, t5, 1
-    beq t5, t2, End_Loop_row_add
+    addi t0, t0, 1
+    beq t0, t2, End_Loop_row_add
 
     j Loop_row_add
 End_Loop_row_add:
@@ -183,9 +194,89 @@ lw ra, 12(sp)
 addi sp, sp, 16
 ret
 
+matrix_Substaction:
+#matrix one is stored in a0
+#matrix two is stored in a1
+# returns resulting matrix in a0
+# the matricies should be the same size
+addi sp, sp, -16
+sw ra, 12(sp)
+sw a0, 0(sp)
+sw a1, 4(sp)
+# t5 is the row
+# t1 is the colium
+# t2 is the size of row
+# t3 is tha size of columns
+# t4 is the element from first matrix
+li t5, 0
+li t1, 0
+lw t2, 4(a0)
+lw t3, 8(a0)
+mv a0, t2
+mv a1, t3
+jal create_Matrix
+sw a0, 8(sp)
+Loop_row_Sub:        
+	Loop_columns_Sub:
+    	lw a0, 0(sp)
+      	mv a1, t0
+        mv a2, t1
+        jal get_Element
+        mv t4, a0
+        lw a0, 4(sp)
+        mv a1, t0
+        mv a2, t1
+        jal get_Element
+        sub a4, a0, t4
+        lw a0, 8(sp)
+        mv a1, t0
+        mv a2, t1
+        jal set_Element
+        addi t1, t1, 1
+        beq t1, t3, End_Loop_columns_Sub
+        j Loop_columns_Sub
+    End_Loop_columns_Sub:
+    li t1, 0    
+    addi t5, t5, 1
+    beq t5, t2, End_Loop_row_Sub
+    j Loop_row_Sub
+End_Loop_row_Sub:
+lw a0, 8(sp)
+lw ra, 12(sp)
+addi sp, sp, 16
+ret
 
 
+print_Matrix:
+addi sp, sp, -8
+sw a0, 0(sp)
+sw ra, 4(sp)
+li t0, 0
+li t1, 0
+lw t2, 4(a0)
+lw t3, 8(a0)
+Loop_row_Print:        
+	Loop_columns_Print:
+		lw a0, 0(sp)
+        mv a1, t0
+        mv a2, t1
+        jal get_Element
+        jal print_Int
+        jal print_space
+        addi t1, t1, 1
+        beq t1, t3, End_Loop_columns_Print
+        j Loop_columns_Print
+    End_Loop_columns_Print:
+    li t1, 0    
+    addi t0, t0, 1
+    jal Print_New_Line
+    beq t0, t2, End_Loop_row_Print
+   j Loop_row_Print
+End_Loop_row_Print:
+lw ra, 4(sp)
+ret
 
+#################################End Of matrix#####################################
 Malloc:
 addi a1, a0, 0
 addi a0, x0 9
@@ -209,3 +300,14 @@ li a0, 1
 ecall
 ret
 
+Print_New_Line:
+li a1, '\n'
+li a0, 11
+ecall
+ret
+
+print_space:
+li a1, 32
+li a0, 11
+ecall
+ret
