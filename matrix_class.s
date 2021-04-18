@@ -8,49 +8,48 @@
 # There will be a Get_Element method that will get the element at the row and column specified. So, the matrix will be stored in a0,  the row you want will be stored in a1, and the column you want will be stored in a2. To get the element will do 4*(a1)*(number element in the row)+(a2)=(memory location) then return the value at the location on the data portion of the matrix in a0.
 
 .data
+Failed: .asciiz "Failed Execution"
+
 .text
 Main:
-li a0, 4
-li a1, 3
+#Matrix 1
+li a0, 2
+li a1, 1
 jal create_Matrix
 mv s0, a0
 li a1, 0
 li a2, 0
 li a3, 10
 jal set_Element
-mv a0, s0
-li a1, 0
+li a1, 1
 li a2, 0
-jal get_Element
-jal print_Int
-jal Print_New_Line
-mv a0, s0
-jal print_Matrix
-li a0, 3
-li a1, 4
+li a3, 10
+jal set_Element
+#Matrix 2
+li a0, 1
+li a1, 3
 jal create_Matrix
 mv s1, a0
 li a1, 0
-li a2, 2
-li a3, 40
+li a2, 0
+li a3, 10
 jal set_Element
-jal Print_New_Line
-jal Print_New_Line
-mv a1, s0
-mv a0, s1
-jal matrix_Subtraction
-jal print_Matrix
-li a2, 5
-jal matrix_Scalar_Multiplication
-mv s0, a0
-jal Print_New_Line
-jal Print_New_Line
+li a1, 0
+li a2, 1
+li a3, 10
+jal set_Element
+li a1, 0
+li a2, 2
+li a3, 50
+jal set_Element
+#Matrix Multiply
 mv a0, s0
-jal print_Matrix
-jal Print_New_Line
-jal Print_New_Line
-mv a0, s0
-jal matrix_Transpos
+mv a1, s1
+jal matrix_Multiplication
+#Store result matrix, hopefully [100, 100] into s2
+mv s2, a0
+#Print s2 matrix
+mv a0, s2
 jal print_Matrix
 j End
 
@@ -331,8 +330,116 @@ lw a0, 4(sp)
 addi sp, sp, 12
 ret
 
+matrix_Multiplication:
+#Matrix Multiplication
+#Matrix one stored in a0
+#Matrix two stored in a1
+#a0 x a1 => row1, col1 x row2, col2
+#In order for matrix multiplication to work, the insides (col1, row2) need to be the same
+#The resulting matrix size = row1 x col2
+addi sp, sp, -16
+sw ra, 12(sp)
+sw a0, 0(sp)
+sw a1, 4(sp)
+#Make sure matrix's CAN multiply
+#compare matrix 1 cols and matrix 2 rows
+lw t1, 8(a0)
+lw t2, 4(a1)
+lw s9, 4(a1)
+#If they aren't equal, they can't be multiplied so fail
+bne t1, t2, matrix_Multiplication_Fail
+#Load in the sizes and create the result matrix
+lw t1, 4(a0)
+lw s7, 4(a0)
+lw t2, 8(a1)
+lw s8, 8(a1)
+mv a0, t1
+mv a1, t2
+jal create_Matrix
+#Store result matrix in 8(sp)
+sw a0, 8(sp)
+li t0, 0
+li t1, 0
+li t2, 0
+#calculate the t3 value = # # of elements to add
+#Get row of matrix 1
+mv t3, s7
+addi, t3, t3, -1
+mv t4, s8
+addi, t4, t4, -1
+mv t5, s9
+addi, t5, t5, -1
+#Start the looping for the job
+Mul_Loop:
+	#Get the first element
+    lw a0, 0(sp)
+    mv a1, t0
+    mv a2, t2
+    jal get_Element
+	#Store first element in s9
+	mv s9, a0
+    #Get second Element
+    lw a0, 4(sp)
+	mv a1, t2
+    mv a2, t1
+    jal get_Element
+    #Store second element in s10
+    mv s10, a0
+    #Do the multiplication and store that value in s9
+    mul s9, s9, s10
+    #Now add it to the cumulative register s11
+    add s11, s11, s9
+    #Increment t2
+    addi t2, t2, 1
+    #Check to see if loop done
+    bge t2, t5, Loop_YRow_Done
+    j Mul_Loop
 
-
+Loop_YRow_Done:
+#Store s11 in result matrix at location t0, t1
+    lw, a0, 8(sp)
+    mv a1, t0
+    mv a2, t1
+    mv a3, s11
+    jal set_Element
+    #Clear s9, s10, and s11
+    li s9, 0
+    li s10, 0
+    li s11, 0
+    #Reset t2
+    li t2, 0
+    #Check if we are done with YCol Loop
+    bge t1, t4, Loop_YCol_Done
+    #Increment t1
+    addi t1, t1, 1
+    #If not, jump back into the loop
+    j Mul_Loop
+            
+Loop_YCol_Done:
+	#Reset t1
+    li t1, 0
+    #Check t0
+    bge t0, t3, matrix_Multiplication_End
+    #If not at the end, increment t0
+    addi t0, t0, 1
+    #Jump back into the loop
+    j Mul_Loop
+            
+matrix_Multiplication_End:
+	#Load return address
+	lw ra, 12(sp)
+    #Make result matrix a0
+    lw a0, 8(sp)
+    #Reset stack pointer
+    addi sp, sp, 16
+    #Return
+    ret
+    
+matrix_Multiplication_Fail:
+	lw ra, 12(sp)
+	addi sp, sp, 16
+    jal print_fail
+    ret
 
 print_Matrix:
 addi sp, sp, -8
@@ -378,10 +485,15 @@ li a6, 4
 ecall
 ret
 
-
 End:
 li a0, 10
 ecall
+
+print_fail:
+    la a1, Failed
+    li a0,4
+    ecall
+    ret
 
 print_Int:
 mv a1, a0
