@@ -137,11 +137,11 @@ matrix_Addition:
 addi sp, sp, -16
 sw ra, 12(sp)
 #input validation 
-lw t1, 0(a0)
-lw t2, 0(a1)
+lw t1, 4(a0)
+lw t2, 4(a1)
 bne t1, t2, Matrix_Addtion_Failed
-lw t1, 0(a0)
-lw t2, 0(a1)
+lw t1, 8(a0)
+lw t2, 8(a1)
 bne t1, t2, Matrix_Addtion_Failed
 #matrix one is stored in a0
 #matrix two is stored in a1
@@ -203,11 +203,11 @@ matrix_Subtraction:
 addi sp, sp, -16
 sw ra, 12(sp)
 #input validation 
-lw t1, 0(a0)
-lw t2, 0(a1)
+lw t1, 4(a0)
+lw t2, 4(a1)
 bne t1, t2, Matrix_Subtraction_Failed
-lw t1, 0(a0)
-lw t2, 0(a1)
+lw t1, 8(a0)
+lw t2, 8(a1)
 bne t1, t2, Matrix_Subtraction_Failed
 #matrix one is stored in a0
 #matrix two is stored in a1
