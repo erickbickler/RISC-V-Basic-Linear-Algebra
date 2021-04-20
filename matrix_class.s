@@ -13,39 +13,49 @@ Failed: .asciiz "Failed Execution"
 .text
 Main:
 #Matrix 1
-li a0, 2
+li a0, 3
 li a1, 1
 jal create_Matrix
 mv s0, a0
 li a1, 0
 li a2, 0
-li a3, 10
+li a3, 1
 jal set_Element
 li a1, 1
 li a2, 0
-li a3, 10
+li a3, 1
 jal set_Element
+li a1, 2
+li a2, 0
+li a3, 1
+jal set_Element
+mv a0, s0
+jal print_Matrix
+jal Print_New_Line
 #Matrix 2
-li a0, 1
-li a1, 3
+li a0, 3
+li a1, 1
 jal create_Matrix
 mv s1, a0
 li a1, 0
 li a2, 0
 li a3, 10
 jal set_Element
-li a1, 0
-li a2, 1
+li a1, 1
+li a2, 0
 li a3, 10
 jal set_Element
-li a1, 0
-li a2, 2
+li a1, 2
+li a2, 0
 li a3, 50
 jal set_Element
+mv a0, s1
+jal print_Matrix
+jal Print_New_Line
 #Matrix Multiply
 mv a0, s0
 mv a1, s1
-jal matrix_Multiplication
+jal dot_Product
 #Store result matrix, hopefully [100, 100] into s2
 mv s2, a0
 #Print s2 matrix
@@ -395,7 +405,7 @@ addi, t3, t3, -1
 lw t4, 20(sp)
 addi, t4, t4, -1
 lw t5, 16(sp)
-addi, t5, t5, -1
+
 #Start the looping for the job
 Mul_Loop:
 	#Get the first element
@@ -457,15 +467,49 @@ matrix_Multiplication_End:
     #Make result matrix a0
     lw a0, 8(sp)
     #Reset stack pointer
-    addi sp, sp, 16
+    addi sp, sp, 40
     #Return
     ret
     
 matrix_Multiplication_Fail:
 	lw ra, 12(sp)
-	addi sp, sp, 16
+	addi sp, sp, 40
     jal print_fail
     ret
+
+
+
+dot_Product:
+#store first matrix in a0
+#sores secound matrix in a1
+addi sp, sp, -16
+sw a0, 0(sp)
+sw a1, 4(sp)
+sw ra, 8(sp)
+jal matrix_Transpos
+sw a0, 12(sp)
+lw a1, 4(sp)
+lw a0, 4(a1)
+lw a1, 8(a1)
+jal create_Matrix
+lw a1, 4(sp)
+lw a0, 4(a1)
+lw a1, 8(a1)
+bgt a0, a1 Row_Vector_Dot_Product
+lw a0, 4(sp)
+lw a1, 12(sp)
+jal matrix_Multiplication
+lw ra, 8(sp)
+ret
+Row_Vector_Dot_Product:
+lw a0, 12(sp)
+lw a1, 4(sp)
+jal matrix_Multiplication
+lw ra, 8(sp)
+ret
+
+
+
 
 print_Matrix:
 addi sp, sp, -8
