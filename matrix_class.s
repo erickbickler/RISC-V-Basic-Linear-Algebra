@@ -134,12 +134,19 @@ addi sp, sp, 8
 ret
 
 matrix_Addition:
+addi sp, sp, -16
+sw ra, 12(sp)
+#input validation 
+lw t1, 0(a0)
+lw t2, 0(a1)
+bne t1, t2, Matrix_Addtion_Failed
+lw t1, 0(a0)
+lw t2, 0(a1)
+bne t1, t2, Matrix_Addtion_Failed
 #matrix one is stored in a0
 #matrix two is stored in a1
 # returns resulting matrix in a0
 # the matricies should be the same size
-addi sp, sp, -16
-sw ra, 12(sp)
 sw a0, 0(sp)
 sw a1, 4(sp)
 # t0 is the row
@@ -187,13 +194,25 @@ lw ra, 12(sp)
 addi sp, sp, 16
 ret
 
+Matrix_Addtion_Failed:
+jal print_fail
+lw ra, 12(sp)
+ret
+
 matrix_Subtraction:
+addi sp, sp, -16
+sw ra, 12(sp)
+#input validation 
+lw t1, 0(a0)
+lw t2, 0(a1)
+bne t1, t2, Matrix_Subtraction_Failed
+lw t1, 0(a0)
+lw t2, 0(a1)
+bne t1, t2, Matrix_Subtraction_Failed
 #matrix one is stored in a0
 #matrix two is stored in a1
 # returns resulting matrix in a0
 # the matricies should be the same size
-addi sp, sp, -16
-sw ra, 12(sp)
 sw a0, 0(sp)
 sw a1, 4(sp)
 # t0 is the row
@@ -239,6 +258,11 @@ End_Loop_row_Sub:
 lw a0, 8(sp)
 lw ra, 12(sp)
 addi sp, sp, 16
+ret
+
+Matrix_Subtraction_Failed:
+jal print_fail
+lw ra,12(sp)
 ret
 
 matrix_Scalar_Multiplication:
@@ -495,7 +519,7 @@ print_fail:
     la a1, Failed
     li a0,4
     ecall
-    ret
+	ret
 
 print_Int:
 mv a1, a0
