@@ -337,7 +337,7 @@ matrix_Multiplication:
 #a0 x a1 => row1, col1 x row2, col2
 #In order for matrix multiplication to work, the insides (col1, row2) need to be the same
 #The resulting matrix size = row1 x col2
-addi sp, sp, -16
+addi sp, sp, -40
 sw ra, 12(sp)
 sw a0, 0(sp)
 sw a1, 4(sp)
@@ -345,14 +345,17 @@ sw a1, 4(sp)
 #compare matrix 1 cols and matrix 2 rows
 lw t1, 8(a0)
 lw t2, 4(a1)
-lw s9, 4(a1)
+lw t4, 4(a1)
+sw t4, 16(sp)
 #If they aren't equal, they can't be multiplied so fail
 bne t1, t2, matrix_Multiplication_Fail
 #Load in the sizes and create the result matrix
 lw t1, 4(a0)
-lw s7, 4(a0)
+lw t4, 4(a0)
+sw t4, 24(sp)
 lw t2, 8(a1)
-lw s8, 8(a1)
+lw t4, 8(a1)
+sw t4, 20(sp)
 mv a0, t1
 mv a1, t2
 jal create_Matrix
@@ -363,11 +366,11 @@ li t1, 0
 li t2, 0
 #calculate the t3 value = # # of elements to add
 #Get row of matrix 1
-mv t3, s7
+lw t3, 24(sp)
 addi, t3, t3, -1
-mv t4, s8
+lw t4, 20(sp)
 addi, t4, t4, -1
-mv t5, s9
+lw t5, 16(sp)
 addi, t5, t5, -1
 #Start the looping for the job
 Mul_Loop:
@@ -376,19 +379,20 @@ Mul_Loop:
     mv a1, t0
     mv a2, t2
     jal get_Element
-	#Store first element in s9
-	mv s9, a0
+	#Store first element in 16(sp)
+	sw a0, 16(sp)
     #Get second Element
     lw a0, 4(sp)
 	mv a1, t2
     mv a2, t1
     jal get_Element
     #Store second element in s10
-    mv s10, a0
+    sw a0, 28(sp)
     #Do the multiplication and store that value in s9
-    mul s9, s9, s10
-    #Now add it to the cumulative register s11
-    add s11, s11, s9
+    lw a3, 16(sp)
+    mul a3, a3, a0
+    #Now add it to the cumulative register a4
+    add a4, a4, a3
     #Increment t2
     addi t2, t2, 1
     #Check to see if loop done
@@ -400,12 +404,10 @@ Loop_YRow_Done:
     lw, a0, 8(sp)
     mv a1, t0
     mv a2, t1
-    mv a3, s11
+    mv a3, a4
     jal set_Element
-    #Clear s9, s10, and s11
-    li s9, 0
-    li s10, 0
-    li s11, 0
+    #Clear a4
+    li a4, 0
     #Reset t2
     li t2, 0
     #Check if we are done with YCol Loop
