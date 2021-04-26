@@ -7,53 +7,52 @@ Main:
 	# Creating matrix 1 and setting values in the matrix
 	li a0, 3
 	li a1, 1
-	jal create_Matrix
-	mv s0, a0
+	jal Create_Matrix		# Creating the first matrix
+	mv s0, a0				# Storing the new matrix in s0
 	li a1, 0
 	li a2, 0
 	li a3, 1
-	jal set_Element
+	jal Set_Element			# Setting the 0th row and 0th column to the value 1
 	li a1, 1
 	li a2, 0
 	li a3, 1
-	jal set_Element
+	jal Set_Element			# Setting the 1st row and 0th column to the value 1
 	li a1, 2
 	li a2, 0
 	li a3, 1
-	jal set_Element
+	jal Set_Element			# Setting the 2th row and 0th column to the value 1
 	mv a0, s0
-	jal print_Matrix
+	jal Print_Matrix		# Printing the matrix
 	jal Print_New_Line
     
 	# Creating matrix 2 and setting values in the matrix
 	li a0, 3
 	li a1, 1
-	jal create_Matrix
-	mv s1, a0
+	jal Create_Matrix		# Creating the second matrix
+	mv s1, a0				# Storing the new matrix in s1
 	li a1, 0
 	li a2, 0
 	li a3, 10
-	jal set_Element
+	jal Set_Element			# Setting the 0th row and 0th column to the value 10
 	li a1, 1
 	li a2, 0
 	li a3, 10
-	jal set_Element
+	jal Set_Element			# Setting the 1st row and 0th column to the value 10
 	li a1, 2
 	li a2, 0
 	li a3, 50
-	jal set_Element
+	jal Set_Element			# Setting the 2nd row and 0th column to the value 50
 	mv a0, s1
-	jal print_Matrix
+	jal Print_Matrix		# Printing the matrix
 	jal Print_New_Line
     
-	# Testing the matrix multiplication method
-	mv a0, s0
-	mv a1, s1
-	jal dot_Product
-	mv s2, a0           # Storing the resulting matrix into s2
+	mv a0, s0				# Storing the first matrix in a0
+	mv a1, s1				# Storing the second matrix in a1
+	jal Dot_Product			# Testing the dot product method
+	mv s2, a0           	# Storing the resulting matrix into s2
 	mv a0, s2
-	jal print_Matrix    # Printing the resulting matrix
-	j End
+	jal Print_Matrix    	# Printing the resulting matrix
+	j End					# Ending the program
 
 
 ###################### MATRIX DATA STRUCTURE ######################
@@ -68,7 +67,7 @@ Main:
 # To get the element will do 4*(a1)*(number element in the row)+(a2)=(memory location) then return the value at the location on the data portion of the matrix in a0.
 
 #Note:  rows start at zero
-create_Matrix:
+Create_Matrix:
 	# This method creates a matrix of a given size.
 	addi sp, sp, -12
 	sw a0, 0(sp)               # Storing the number of rows in a0
@@ -95,7 +94,7 @@ create_Matrix:
 	addi sp,sp,12
 	ret
 
-set_Element:
+Set_Element:
 	# This method allows you to set an element in a certain location in the matrix.
     # Parameters: a0 holds the matrix, a1 holds the intended row, a2 holds the intended column, a3 holds the element to be added
 	
@@ -121,7 +120,7 @@ set_Element:
 	addi sp,sp,12
 	ret
 
-get_Element:
+Get_Element:
 	# This method returns the element in a certain location in the matrix.
     # Parameters: a0 holds the matrix, a1 holds the intended row, a2 holds the intended column
     # Stores the element, row, and column in the stack
@@ -148,7 +147,7 @@ get_Element:
 #################### MATRIX DATA STRUCTURE END ####################
 
 #################### BASIC LINEAR ALGEBRA METHODS ####################
-matrix_Addition:
+Matrix_Addition:
 	# This method adds two matrices together.
     # NOTE: The matrices MUST be the same size for matrix addition.
     # Parameters: a0 holds matrix 1, a1 holds matrix 2
@@ -157,13 +156,14 @@ matrix_Addition:
 	
 	addi sp, sp, -16
 	sw ra, 12(sp)
+    
 	# Input validation 
 	lw t1, 4(a0)
 	lw t2, 4(a1)
-	bne t1, t2, Matrix_Addtion_Failed
+	bne t1, t2, Matrix_Addition_Failed
 	lw t1, 8(a0)
 	lw t2, 8(a1)
-	bne t1, t2, Matrix_Addtion_Failed
+	bne t1, t2, Matrix_Addition_Failed
     
 	sw a0, 0(sp)
 	sw a1, 4(sp)
@@ -173,49 +173,54 @@ matrix_Addition:
 	lw t3, 8(a0)
 	mv a0, t2
 	mv a1, t3
-	jal create_Matrix
+	jal Create_Matrix
 	li t0, 0
 	sw a0, 8(sp)
     
-	Loop_row_add:        
-		Loop_columns_Add:
+	Loop_Row_Add:
+    	# Loop through each row
+		Loop_Columns_Add:
+        	# Loop through each column and performing the addtion
     		lw a0, 0(sp)
       		mv a1, t0
         	mv a2, t1
-        	jal get_Element
+        	jal Get_Element
         	mv t4, a0
         	lw a0, 4(sp)
         	mv a1, t0
         	mv a2, t1
-        	jal get_Element
+        	jal Get_Element
         	add a3, a0, t4
         	lw a0, 8(sp)
         	mv a1, t0
         	mv a2, t1
-        	jal set_Element
+        	jal Set_Element
         	addi t1, t1, 1
-        	beq t1, t3, End_Loop_columns_Add
-        	j Loop_columns_Add
+        	beq t1, t3, End_Loop_Columns_Add
+        	j Loop_Columns_Add
             
-	End_Loop_columns_Add:
+	End_Loop_Columns_Add:
+    	# Ending the column addition
     	li t1, 0    
     	addi t0, t0, 1
-    	beq t0, t2, End_Loop_row_add
+    	beq t0, t2, End_Loop_Row_Add
 		
-    	j Loop_row_add
+    	j Loop_Row_Add
 
-End_Loop_row_add:
+End_Loop_Row_Add:
+	# Ending the row addition
 	lw a0, 8(sp)
 	lw ra, 12(sp)
 	addi sp, sp, 16
 	ret
 
-Matrix_Addtion_Failed:
-	jal print_fail
+Matrix_Addition_Failed:
+	# Handling when matrix addition cannot be applied
+	jal Print_Fail
 	lw ra, 12(sp)
 	ret
 
-matrix_Subtraction:
+Matrix_Subtraction:
 	# This method subtracts two matrices from each other.
     # NOTE: The matrices MUST be the same size for matrix addition.
     # Parameters: a0 holds matrix 1, a1 holds matrix 2
@@ -224,6 +229,7 @@ matrix_Subtraction:
 	
 	addi sp, sp, -16
 	sw ra, 12(sp)
+    
 	# Input validation 
 	lw t1, 4(a0)
 	lw t2, 4(a1)
@@ -240,49 +246,54 @@ matrix_Subtraction:
 	lw t3, 8(a0)
 	mv a0, t2
 	mv a1, t3
-	jal create_Matrix
+	jal Create_Matrix
 	li t0, 0
 	sw a0, 8(sp)
     
-	Loop_row_Sub:        
-		Loop_columns_Sub:
+	Loop_Row_Sub:
+    	# Loop through each row
+		Loop_Columns_Sub:
+        	# Loop through each column and performing the subtraction
     		lw a0, 0(sp)
       		mv a1, t0
         	mv a2, t1
-        	jal get_Element
+        	jal Get_Element
         	mv t4, a0
         	lw a0, 4(sp)
         	mv a1, t0
         	mv a2, t1
-        	jal get_Element
+        	jal Get_Element
         	sub a3, t4, a0
         	lw a0, 8(sp)
         	mv a1, t0
         	mv a2, t1
-        	jal set_Element
+        	jal Set_Element
         	addi t1, t1, 1
-        	beq t1, t3, End_Loop_columns_Sub
-        	j Loop_columns_Sub
+        	beq t1, t3, End_Loop_Columns_Sub
+        	j Loop_Columns_Sub
             
-	End_Loop_columns_Sub:
+	End_Loop_Columns_Sub:
+    	# Ending the column subtraction
     	li t1, 0    
     	addi t0, t0, 1
-    	beq t0, t2, End_Loop_row_Sub
+    	beq t0, t2, End_Loop_Row_Sub
 		
-    	j Loop_row_Sub
+    	j Loop_Row_Sub
 
-End_Loop_row_Sub:
+End_Loop_Row_Sub:
+	# Ending the row subtraction
 	lw a0, 8(sp)
 	lw ra, 12(sp)
 	addi sp, sp, 16
 	ret
 
 Matrix_Subtraction_Failed:
-	jal print_fail
+	# Handling when matrix subtraction cannot be applied
+	jal Print_Fail
 	lw ra,12(sp)
 	ret
 
-matrix_Scalar_Multiplication:
+Matrix_Scalar_Multiplication:
 	# This method scales a matrix by a value.
     # Parameters: a0 holds the matrix, a1 holds the value to scale by
     # Output: a0 holds the resulting matrix
@@ -298,41 +309,45 @@ matrix_Scalar_Multiplication:
 	lw t3, 8(a0)
 	mv a0, t2
 	mv a1, t3
-	jal create_Matrix
+	jal Create_Matrix
 	li t0, 0
 	sw a0, 8(sp)
     
-	Loop_row_Scalar_Multiplication:        
-		Loop_columns_Scalar_Multiplication:
+	Loop_Row_Scalar_Multiplication:
+    	# Loop through each row
+		Loop_Columns_Scalar_Multiplication:
+        	# Loop through each column and scaling all the values
     		lw a0, 0(sp)
       		mv a1, t0
         	mv a2, t1
-        	jal get_Element
+        	jal Get_Element
 			lw t4, 4(sp)
         	mul a3, t4, a0
         	lw a0, 8(sp)
         	mv a1, t0
         	mv a2, t1
-        	jal set_Element
+        	jal Set_Element
         	addi t1, t1, 1
-        	beq t1, t3, End_Loop_columns_Scalar_Multiplication
-        	j Loop_columns_Scalar_Multiplication
+        	beq t1, t3, End_Loop_Columns_Scalar_Multiplication
+        	j Loop_Columns_Scalar_Multiplication
     
-	End_Loop_columns_Scalar_Multiplication:
+	End_Loop_Columns_Scalar_Multiplication:
+    	# Ending the column scaling
     	li t1, 0    
     	addi t0, t0, 1
-    	beq t0, t2, End_Loop_row_Scalar_Multiplication
+    	beq t0, t2, End_Loop_Row_Scalar_Multiplication
 		
-    	j Loop_row_Scalar_Multiplication
+    	j Loop_Row_Scalar_Multiplication
 
-End_Loop_row_Scalar_Multiplication:
+End_Loop_Row_Scalar_Multiplication:
+	# Ending the row scaling
 	lw a0, 8(sp)
 	lw ra, 12(sp)
 	addi sp, sp, 16
 	ret
 
 
-matrix_Transpose:
+Matrix_Transpose:
 	# This gets the transpose of a matrix.
     # Parameters: a0 holds the matrix
     # Output: a0 holds the resulting matrix
@@ -346,38 +361,42 @@ matrix_Transpose:
 	lw t3, 8(a0)
 	mv a0, t3
 	mv a1, t2
-	jal create_Matrix 				# Creates the transpose matrix
+	jal Create_Matrix 				# Creates the transpose matrix
 	sw a0, 4(sp)
 	li t0, 0
     
-	Loop_row_Transpose:        
-		Loop_columns_Transpose:
+	Loop_Row_Transpose:
+    	# Loop through each row
+		Loop_Columns_Transpose:
+        	# Loop through each column and transposing the matrix
     		lw a0, 0(sp)
       		mv a1, t0
         	mv a2, t1
-        	jal get_Element
+        	jal Get_Element
             mv a3, a0
         	lw a0, 4(sp)
         	mv a1, t1
         	mv a2, t0
-        	jal set_Element
+        	jal Set_Element
         	addi t1, t1, 1
-        	beq t1, t3, End_Loop_columns_Transpose
-        	j Loop_columns_Transpose
+        	beq t1, t3, End_Loop_Columns_Transpose
+        	j Loop_Columns_Transpose
             
-	End_Loop_columns_Transpose:
+	End_Loop_Columns_Transpose:
+    	# Ending transposing the column
     	li t1, 0    
     	addi t0, t0, 1
-    	beq t0, t2, End_Loop_row_Transpose
-		j Loop_row_Transpose
+    	beq t0, t2, End_Loop_Row_Transpose
+		j Loop_Row_Transpose
         
-End_Loop_row_Transpose:
+End_Loop_Row_Transpose:
+	# Ending transposing the row
 	lw ra, 8(sp)
 	lw a0, 4(sp)
 	addi sp, sp, 12
 	ret
 
-matrix_Multiplication:
+Matrix_Multiplication:
 	# This method multiplies two matrices together.
     # NOTE: The matrices MUST be a proper size.
     # Parameters: a0 holds matrix 1, a1 holds matrix 2
@@ -401,7 +420,7 @@ matrix_Multiplication:
 	sw t4, 16(sp)
     
 	#If they aren't equal, they can't be multiplied so fail
-	bne t1, t2, matrix_Multiplication_Fail
+	bne t1, t2, Matrix_Multiplication_Fail
     
 	#Load in the sizes and create the result matrix
 	lw t1, 4(a0)
@@ -412,7 +431,7 @@ matrix_Multiplication:
 	sw t4, 20(sp)
 	mv a0, t1
 	mv a1, t2
-	jal create_Matrix
+	jal Create_Matrix
     
 	#Store result matrix in 8(sp)
 	sw a0, 8(sp)
@@ -434,14 +453,14 @@ Mul_Loop:
     lw a0, 0(sp)
     mv a1, t0
     mv a2, t2
-    jal get_Element
+    jal Get_Element
 	#Store first element in 16(sp)
 	sw a0, 16(sp)
     #Get second Element
     lw a0, 4(sp)
 	mv a1, t2
     mv a2, t1
-    jal get_Element
+    jal Get_Element
     #Store second element in s10
     sw a0, 28(sp)
     #Do the multiplication and store that value in s9
@@ -461,7 +480,7 @@ Loop_YRow_Done:
     mv a1, t0
     mv a2, t1
     mv a3, a4
-    jal set_Element
+    jal Set_Element
     #Clear a4
     li a4, 0
     #Reset t2
@@ -477,13 +496,13 @@ Loop_YCol_Done:
 	#Reset t1
     li t1, 0
     #Check t0
-    bge t0, t3, matrix_Multiplication_End
+    bge t0, t3, Matrix_Multiplication_End
     #If not at the end, increment t0
     addi t0, t0, 1
     #Jump back into the loop
     j Mul_Loop
             
-matrix_Multiplication_End:
+Matrix_Multiplication_End:
 	#Load return address
 	lw ra, 12(sp)
     #Make result matrix a0
@@ -493,13 +512,14 @@ matrix_Multiplication_End:
     #Return
     ret
     
-matrix_Multiplication_Fail:
+Matrix_Multiplication_Fail:
+	# Handling when matrix multiplication cannot be applied
 	lw ra, 12(sp)
 	addi sp, sp, 40
-    jal print_fail
+    jal Print_Fail
     ret
 
-dot_Product:
+Dot_Product:
 	# This method calculates the dot product of two vectors.
     # Parameters: a0 holds vector 1, a1 holds vector 2
     # Output: a0 holds the resulting matrix
@@ -509,32 +529,33 @@ dot_Product:
 	sw a0, 0(sp)
 	sw a1, 4(sp)
 	sw ra, 8(sp)
-	jal matrix_Transpose
+	jal Matrix_Transpose
 	sw a0, 12(sp)
 	lw a1, 4(sp)
 	lw a0, 4(a1)
 	lw a1, 8(a1)
-	jal create_Matrix
+	jal Create_Matrix
 	lw a1, 4(sp)
 	lw a0, 4(a1)
 	lw a1, 8(a1)
 	bgt a0, a1 Row_Vector_Dot_Product
 	lw a0, 4(sp)
 	lw a1, 12(sp)
-	jal matrix_Multiplication
+	jal Matrix_Multiplication
 	lw ra, 8(sp)
 	ret
+    
 	Row_Vector_Dot_Product:
-	lw a0, 12(sp)
-	lw a1, 4(sp)
-	jal matrix_Multiplication
-	lw ra, 8(sp)
-	ret
+		lw a0, 12(sp)
+		lw a1, 4(sp)
+		jal Matrix_Multiplication
+		lw ra, 8(sp)
+		ret
 ################## BASIC LINEAR ALGEBRA METHODS END ##################
 
 
 ############################ HELPER METHODS ############################
-print_Matrix:
+Print_Matrix:
 	# This method prints a matrix.
 	addi sp, sp, -8
 	sw a0, 0(sp)
@@ -544,26 +565,30 @@ print_Matrix:
 	lw t2, 4(a0)
 	lw t3, 8(a0)
     
-	Loop_row_Print:        
-		Loop_columns_Print:
+	Loop_Row_Print:      
+    	# Loop through each row
+		Loop_Columns_Print:
+        	# Loop through each column and printing the values
 			lw a0, 0(sp)
         	mv a1, t0
         	mv a2, t1
-        	jal get_Element
-        	jal print_Int
-        	jal print_space
+        	jal Get_Element
+        	jal Print_Int
+        	jal Print_Space
         	addi t1, t1, 1
-        	beq t1, t3, End_Loop_columns_Print
-        	j Loop_columns_Print
+        	beq t1, t3, End_Loop_Columns_Print
+        	j Loop_Columns_Print
             
-    End_Loop_columns_Print:
+    End_Loop_Columns_Print:
+    	# Ending printing of the columns
     	li t1, 0    
     	addi t0, t0, 1
     	jal Print_New_Line
-    	beq t0, t2, End_Loop_row_Print
-   		j Loop_row_Print
+    	beq t0, t2, End_Loop_Row_Print
+   		j Loop_Row_Print
         
-End_Loop_row_Print:
+End_Loop_Row_Print:
+	# Ending printing of the rows
 	lw a0, 0(sp)
 	lw ra, 4(sp)
 	ret
@@ -588,14 +613,14 @@ End:
 	li a0, 10
 	ecall
 
-print_fail:
+Print_Fail:
 	# This method prints the failed string.
     la a1, Failed
     li a0,4
     ecall
 	ret
 
-print_Int:
+Print_Int:
 	# This method prints an integer value.
 	mv a1, a0
 	li a0, 1
@@ -609,7 +634,7 @@ Print_New_Line:
 	ecall
 	ret
 
-print_space:
+Print_Space:
 	# This method prints a blank space.
 	li a1, 32
 	li a0, 11
